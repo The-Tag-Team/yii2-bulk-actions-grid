@@ -1,0 +1,25 @@
+{
+  "name": "thetagteam/yii2-batch-actions-grid",
+  "description": "An extension of Kartik yii2-grid to add batch actions when selecting rows via the CheckboxColumn",
+  "minimum-stability": "stable",
+  "license": "GPL-2.0",
+  "authors": [
+    {
+      "name": "Nico Ratti",
+      "email": "rattinico92@gmail.com"
+    },
+    {
+      "name": "Marco Piazza",
+      "email": "piazza.m17@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.4",
+    "kartik-v/yii2-grid": "^3.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "thetagteam\\batchactionsgrid\\": "src"
+    }
+  }
+}
