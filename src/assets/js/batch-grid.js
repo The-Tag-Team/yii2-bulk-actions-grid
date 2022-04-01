@@ -202,7 +202,7 @@ $(document).ready(function () {
         actionsPanel = '.panel-batch-actions';
         counterPanel = '.panel-batch-counter';
 
-        $chkboxes = $grid.find("[name='selection[]']");
+        $chkboxes = $grid.find("[name='selection[]']:not(:disabled)");
         $chkboxesAll = $grid.find("[name='selection_all']");
 
         // console.log($chkboxes)
