@@ -21,8 +21,7 @@ $(document).ready(function () {
     initDoms();
     initEvents();
 
-    function updateProgressBar(percentage)
-    {
+    function updateProgressBar(percentage) {
         let perc_string = percentage + '%';
         $('.progress-bar')
             .attr('aria-valuenow', percentage)
@@ -31,11 +30,10 @@ $(document).ready(function () {
         $('#progress').text(perc_string);
     }
 
-    function endProcessing(issued, issues)
-    {
+    function endProcessing(issued, issues, responseResult) {
         processCompleted = true;
         let perc = 100;
-        let perc_string = 'Completato. Modificati: ' + (issued-issues) + ' su ' + issued + ' selezionati.';
+        let perc_string = 'Completato. Modificati: ' + (issued - issues) + ' su ' + issued + ' selezionati.';
         $('.progress-bar')
             .attr('aria-valuenow', perc)
             .css('width', perc + '%')
@@ -48,14 +46,12 @@ $(document).ready(function () {
         }
     }
 
-    function disposeProgressBar(message)
-    {
+    function disposeProgressBar(message) {
         alert(message);
         $modal.modal('hide');
     }
 
-    function showProgressBar()
-    {
+    function showProgressBar() {
         let perc = 0;
         let perc_string = perc + '%';
         $('.progress-bar')
@@ -84,9 +80,9 @@ $(document).ready(function () {
      * @param issued number of item processed (correctly or wrong)
      * @param issues number of item error during the process
      * @param extras additional parameters
+     * @param responseResult additional response parameters
      */
-    function batchSend(url, akt, set, iter, take, issued, issues, extras)
-    {
+    function batchSend(url, akt, set, iter, take, issued, issues, extras, responseResult) {
         let group = iter + take < set.length ? iter + take : set.length;
         let progress = Math.round((group / set.length) * 100);
         let dataObj = [];
@@ -108,11 +104,20 @@ $(document).ready(function () {
                     updateProgressBar(progress);
                     issued += data.issued;
                     issues += data.issues;
+
+                    if (data.batchError) {
+                        $('#batch-action-logs').removeClass('hidden');
+                        data.batchError.forEach(function (item) {
+                            $('#batch-action-logs').append('<p><b>' + item.ref + '</b>: ' + item.msg + '</p>')
+                        })
+                    }
+
+
                     if (progress < 100) {
-                        batchSend(url, akt, set, iter, take, issued, issues, extras);
+                        batchSend(url, akt, set, iter, take, issued, issues, extras, responseResult);
                     } else {
                         setTimeout(function () {
-                            endProcessing(issued, issues);
+                            endProcessing(issued, issues, responseResult);
                         }, 0);
                     }
                     return true;
@@ -127,10 +132,10 @@ $(document).ready(function () {
         });
     }
 
-    function processAkt(e)
-    {
+    function processAkt(e) {
         e.preventDefault();
         $('#batch-action-errors').addClass('hidden');
+        $('#batch-action-logs').text('');
         processCompleted = false;
 
         let $target = $(e.target);
@@ -150,7 +155,7 @@ $(document).ready(function () {
 
         if ((confirmMsg && confirm(confirmMsg)) || confirmMsg === undefined) {
             showProgressBar();
-            batchSend($target.data('url'), $target.data('akt'), keys, 0, 10, 0, 0, extras);
+            batchSend($target.data('url'), $target.data('akt'), keys, 0, 10, 0, 0, extras, []);
 
             // reload page after modal close
             if ($target.data('reload')) {
@@ -165,8 +170,7 @@ $(document).ready(function () {
         }
     }
 
-    function updateView()
-    {
+    function updateView() {
         // console.log('updateView');
         setTimeout(function () {
             let keys = $grid.yiiGridView('getSelectedRows');
@@ -185,8 +189,7 @@ $(document).ready(function () {
         }, 0);
     }
 
-    function getExtrasdata(target)
-    {
+    function getExtrasdata(target) {
         let data = {};
         let inputs = [].slice.call(document.querySelectorAll('[data-extra="' + target + '"]'));
         inputs.forEach(input => {
@@ -195,8 +198,7 @@ $(document).ready(function () {
         return data;
     }
 
-    function initDoms()
-    {
+    function initDoms() {
         $grid = $('#batch-grid');
 
         actionsPanel = '.panel-batch-actions';
@@ -211,8 +213,7 @@ $(document).ready(function () {
         lastChecked = null;
     }
 
-    function initEvents()
-    {
+    function initEvents() {
         $chkboxesAll.on('click', function (e) {
             updateView();
         });
