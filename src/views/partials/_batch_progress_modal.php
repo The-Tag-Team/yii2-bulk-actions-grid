@@ -22,5 +22,6 @@ $modal::begin(['header' => '<h5 id="progress">0% ' . Yii::t('batchactionsgrid', 
 ]); ?>
 
     <div class="hidden alert alert-danger" id="batch-action-errors"></div>
+    <div class="hidden alert alert-danger" id="batch-action-logs"></div>
 
 <?php $modal::end(); ?>
