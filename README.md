@@ -3,6 +3,20 @@ An extension of Kartik yii2-grid to add batch actions when selecting rows via th
 
 ## Usage
 
+### Config:
+
+```
+
+'modules' => [
+    ...
+    'batchactionsgrid' => [
+        'class' => 'thetagteam\batchactionsgrid\Module',
+    ],
+    ...
+]
+
+```
+
 ### View:
 
 ```
