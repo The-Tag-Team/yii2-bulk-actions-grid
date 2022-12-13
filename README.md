@@ -80,9 +80,9 @@ class ItemBatchController
         if (Yii::$app->request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
 
-            $ids = json_decode(Yii::$app->request->post('ids', ''));
+            $ids = Yii::$app->request->post('ids', '');
             $akt = Yii::$app->request->post('akt', '');
-            $extras = Yii::$app->request->post('extras');
+            $extras = Yii::$app->request->post('extras', []);
 
             $model = DynamicModel::validateData(compact('ids', 'akt'), [
                 [['akt'], 'string', 'max' => 128],
@@ -92,12 +92,12 @@ class ItemBatchController
             $response = new ObjectResponse;
             if ($model->hasErrors()) {
                 $response->setError('Error during the process');
-                $response->add('error', $model->getErrors());
+                $response->set('error', $model->getErrors());
             } else {
-                $success = $this->getServiceModel()->process($akt, $ids, $extras);
+                $successCount = $this->getServiceModel()->process($akt, $ids, $extras, $response);
                 $response->setSuccess('Success', $model->toArray());
-                $response->add('issued', count($ids));
-                $response->add('issues', count($ids) - $success);
+                $response->set('issued', count($ids));
+                $response->set('issues', count($ids) - $successCount);
             }
             return $response->get();
         }

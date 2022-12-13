@@ -73,31 +73,29 @@ $(document).ready(function () {
 
     /**
      * @param url url for batch action
-     * @param akt method name
+     * @param formData FormData
      * @param set ids to batch
      * @param iter number of iteration
      * @param take number of items for each iteration
      * @param issued number of item processed (correctly or wrong)
      * @param issues number of item error during the process
-     * @param extras additional parameters
      * @param responseResult additional response parameters
      */
-    function batchSend(url, akt, set, iter, take, issued, issues, extras, responseResult) {
+    function batchSend(url, formData, set, iter, take, issued, issues, responseResult) {
         let group = iter + take < set.length ? iter + take : set.length;
         let progress = Math.round((group / set.length) * 100);
-        let dataObj = [];
+
         for (let i = iter; i < group; i++) {
-            dataObj.push(set[i]);
+            formData.append('ids[]', set[i]);
         }
+
         iter += take;
         $.ajax({
             url: url,
             type: 'post',
-            data: {
-                'akt': akt,
-                'ids': JSON.stringify(dataObj),
-                'extras': extras,
-            },
+            data: formData,
+            processData: false,
+            contentType: false,
             success: function (data) {
                 // console.log(data);
                 if (data.status) {
@@ -112,9 +110,9 @@ $(document).ready(function () {
                         })
                     }
 
-
                     if (progress < 100) {
-                        batchSend(url, akt, set, iter, take, issued, issues, extras, responseResult);
+                        formData.delete('ids[]');
+                        batchSend(url, formData, set, iter, take, issued, issues, responseResult);
                     } else {
                         setTimeout(function () {
                             endProcessing(issued, issues, responseResult);
@@ -141,8 +139,6 @@ $(document).ready(function () {
         let $target = $(e.target);
         let akt = $target.data('akt');
 
-        let extras = getExtrasdata(akt);
-
         let $pjax = $target.closest('[data-pjax-container]');
 
         let keys = $grid.yiiGridView('getSelectedRows');
@@ -155,7 +151,12 @@ $(document).ready(function () {
 
         if ((confirmMsg && confirm(confirmMsg)) || confirmMsg === undefined) {
             showProgressBar();
-            batchSend($target.data('url'), $target.data('akt'), keys, 0, 10, 0, 0, extras, []);
+
+            let formData = new FormData();
+            formData.set('akt', akt);
+            parseExtrasdata(formData, akt);
+
+            batchSend($target.data('url'), formData, keys, 0, 10, 0, 0, []);
 
             // reload page after modal close
             if ($target.data('reload')) {
@@ -183,19 +184,30 @@ $(document).ready(function () {
                 $grid.find(counterPanel).addClass('hidden');
             }
 
-            $('#batch-grid input[type="checkbox"]:not(:checked)').closest('tr').removeClass('batch-row-selected');
-            $('#batch-grid input[type="checkbox"]:checked').closest('tr').addClass('batch-row-selected');
+            $('#batch-grid input[type="checkbox"][name="selection[]"]:not(:checked)').closest('tr').removeClass('batch-row-selected');
+            $('#batch-grid input[type="checkbox"][name="selection[]"]:checked').closest('tr').addClass('batch-row-selected');
 
         }, 0);
     }
 
-    function getExtrasdata(target) {
-        let data = {};
-        let inputs = [].slice.call(document.querySelectorAll('[data-extra="' + target + '"]'));
-        inputs.forEach(input => {
-            data[input.name] = input.value;
-        });
-        return data;
+    function parseExtrasdata(formData, target) {
+        console.log('append extra data', target)
+        let formTarget = document.querySelector('#' + target + ' form');
+        if (formTarget) {
+            // retrive form data
+            console.log('extra form found: ', formTarget);
+            let extraForm = new FormData(formTarget);
+            for (let pair of extraForm.entries()) {
+                formData.append(pair[0], pair[1]);
+            }
+        } else {
+            // retrive input data
+            let inputs = [].slice.call(document.querySelectorAll('[data-extra="' + target + '"]'));
+            console.log('extra input found: ', inputs);
+            inputs.forEach(input => {
+                formData.append('extras[' + input.name + ']', input.value);
+            });
+        }
     }
 
     function initDoms() {
