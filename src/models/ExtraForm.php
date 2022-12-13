@@ -13,6 +13,6 @@ class ExtraForm extends \yii\base\DynamicModel
 {
     public function formName()
     {
-        return 'extra';
+        return 'extras';
     }
 }
