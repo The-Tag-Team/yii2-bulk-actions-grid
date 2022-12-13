@@ -1,8 +1,6 @@
 <?php
 
-use Yii;
-
-$module = Yii::$app->getModule('batchactionsgrid');
+$module = \Yii::$app->getModule('batchactionsgrid');
 
 if ($module->isBs4()) {
     $modal = 'yii\bootstrap4\Modal';
@@ -12,7 +10,7 @@ if ($module->isBs4()) {
     $progress = 'yii\bootstrap\Progress';
 }
 
-$modal::begin(['header' => '<h5 id="progress">0% ' . Yii::t('batchactionsgrid', 'Completed') . '</h5>', 'id' => 'progress-modal', 'closeButton' => false]);
+$modal::begin(['header' => '<h5 id="progress">0% ' . \Yii::t('batchactionsgrid', 'Completed') . '</h5>', 'id' => 'progress-modal', 'closeButton' => false]);
 
 ?>
 
