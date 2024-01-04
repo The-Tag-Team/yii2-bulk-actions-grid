@@ -97,7 +97,6 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             success: function (data) {
-                // console.log(data);
                 if (data.status) {
                     updateProgressBar(progress);
                     issued += data.issued;
@@ -172,7 +171,6 @@ $(document).ready(function () {
     }
 
     function updateView() {
-        // console.log('updateView');
         setTimeout(function () {
             let keys = $grid.yiiGridView('getSelectedRows');
             let count = keys.length;
@@ -191,11 +189,9 @@ $(document).ready(function () {
     }
 
     function parseExtrasdata(formData, target) {
-        console.log('append extra data', target)
         let formTarget = document.querySelector('#' + target + ' form');
         if (formTarget) {
             // retrive form data
-            console.log('extra form found: ', formTarget);
             let extraForm = new FormData(formTarget);
             for (let pair of extraForm.entries()) {
                 formData.append(pair[0], pair[1]);
@@ -203,7 +199,6 @@ $(document).ready(function () {
         } else {
             // retrive input data
             let inputs = [].slice.call(document.querySelectorAll('[data-extra="' + target + '"]'));
-            console.log('extra input found: ', inputs);
             inputs.forEach(input => {
                 formData.append('extras[' + input.name + ']', input.value);
             });
@@ -218,10 +213,6 @@ $(document).ready(function () {
 
         $chkboxes = $grid.find("[name='selection[]']:not(:disabled)");
         $chkboxesAll = $grid.find("[name='selection_all']");
-
-        // console.log($chkboxes)
-        // console.log($chkboxesAll)
-
         lastChecked = null;
     }
 
